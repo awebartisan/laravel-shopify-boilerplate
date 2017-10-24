@@ -22,11 +22,11 @@ class WebhookController extends Controller
 	    	$payload = json_decode($data , true);
 	    	$shop = Shop::where('shop_id' , $payload['id'])->first();
 	    	$shop->delete();
-	    	Log::info('Webhook Request verified and Handled.')
+	    	Log::info('Webhook Request verified and Handled.');
 	    	return new Response('Webhook Handled', 200);
 
 	    } else {
-	        Log::info('Webhook Request was not verified.')
+	        Log::info('Webhook Request was not verified.');
 	    }
 
     }
