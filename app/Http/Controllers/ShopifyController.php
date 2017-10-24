@@ -94,7 +94,7 @@ class ShopifyController extends Controller
    	protected function createShop($shopResponse)
 	{
 		return Shop::create([
-				'shopc_id' => $shopResponse['id'],
+				'shop_id' => $shopResponse['id'],
 				'name' => $shopResponse['name'],
 				'domain' => $shopResponse['myshopify_domain'],
 				'access_token' => session('access_token')
