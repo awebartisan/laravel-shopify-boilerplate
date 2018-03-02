@@ -13,7 +13,7 @@ class ScriptTag {
         $postData = [
 
             'event' => 'onload',
-            'src' => env('APP_URL') . 'js/storefront.js'
+            'src' => env('APP_URL') . '/js/storefront.js'
 
         ];
 

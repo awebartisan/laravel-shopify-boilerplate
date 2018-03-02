@@ -37,7 +37,7 @@ class ShopifyController extends Controller
 
     				]);
 
-    			return view('upsellify.index');
+    			return view('app.index');
     		}
     		else{
     			$shopify = $this->shopify->setShopUrl($shopUrl);
