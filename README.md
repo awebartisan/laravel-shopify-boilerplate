@@ -1,4 +1,4 @@
-# laravel-shopify-boilerplat
+# laravel-shopify-boilerplate
 An example project for creating shopify apps with Laravel
 I created this repository to scratch my own itch, almost every Shopify app needs a Shopify API wrapper, a ShopifyController which
 handles App Installation process, an App Uninstall Webhook , a Script Tag on Storefront. Instead of doing all these steps every time
