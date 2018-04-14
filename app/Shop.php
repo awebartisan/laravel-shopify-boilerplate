@@ -10,7 +10,7 @@ class Shop extends Model
 
     public function settings()
     {
-        return $this->hasOne('App\Settings');
+        return $this->hasOne('App\Setting');
     }
 
     public function isPremiumShop()

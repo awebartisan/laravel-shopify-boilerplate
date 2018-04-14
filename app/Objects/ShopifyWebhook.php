@@ -13,13 +13,13 @@ class ShopifyWebhook {
         $postData = [
             
             "topic" => "app/uninstalled",
-            "address" => env('APP_URL') . '/shopify/webhook/app_uninstall',
+            "address" => config('app.url') . '/shopify/webhook/app_uninstall',
             "format" => "json"
             
         ];
         
-        return Shopify::setShopUrl(session('domain'))
-                       ->setAccessToken(session('access_token'))
+        return Shopify::setShopUrl(session('myshopifyDomain'))
+                       ->setAccessToken(session('accessToken'))
                        ->post('admin/webhooks.json' , [ "webhook" => $postData]);
     }
     

@@ -20,7 +20,7 @@ class WebhookController extends Controller
 	    if (Shopify::verifyWebHook($data, $hmacHeader)) {
 	        
 	    	$payload = json_decode($data , true);
-	    	$shop = Shop::where('shop_id' , $payload['id'])->first();
+	    	$shop = Shop::where('shopify_id' , $payload['id'])->first();
 	    	$shop->delete();
 	    	Log::info('Webhook Request verified and Handled.');
 	    	return new Response('Webhook Handled', 200);

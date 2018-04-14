@@ -105,7 +105,7 @@ class ShopifyController extends Controller
 	{
 		return Shop::create([
 				'shopify_id' => $data['id'],
-				'domain' => $data['myshopify_domain'],
+				'myshopify_domain' => $data['myshopify_domain'],
 				'access_token' => session('accessToken')
 		]);
 	}
@@ -114,7 +114,8 @@ class ShopifyController extends Controller
     {
         return $settings = Setting::create([
             'enabled' => 1,
-            'shop_id' => $shop->id
+            'shop_id' => $shop->id,
+            'myshopify_domain' => $shop->myshopify_domain
         ]);
 	}
 	
@@ -122,6 +123,6 @@ class ShopifyController extends Controller
 	{
 		unset($data['id']);
 		$data['shop_id'] = $shopId;
-		return ShopInfo::updateOrCreate($data);
+		return ShopInfo::create($data->toArray());
 	}
 }

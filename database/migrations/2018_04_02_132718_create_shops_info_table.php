@@ -13,8 +13,9 @@ class CreateShopsInfoTable extends Migration
      */
     public function up()
     {
-        Schema::table('shops_info', function (Blueprint $table) {
+        Schema::create('shops_info', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('shop_id');
             $table->string('name');
             $table->string('email');
             $table->string('shop_owner')->nullable();
@@ -37,8 +38,6 @@ class CreateShopsInfoTable extends Migration
      */
     public function down()
     {
-        Schema::table('shops_info', function (Blueprint $table) {
-            Schema::dropIfExists('shops_info');
-        });
+        Schema::dropIfExists('shops_info');
     }
 }
