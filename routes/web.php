@@ -23,3 +23,12 @@ Route::group(['prefix' => 'shopify'] , function(){
 	Route::post('webhook/app_uninstall' , 'WebhookController@app_uninstall');
 
 });
+
+Route::group(['prefix' => 'billing'] , function(){
+
+    Route::get('/' , 'BillingController@index')->name('billing.index');
+    Route::get('charge' , 'BillingController@charge')->name('billing.charge');
+    Route::get('callback' , 'BillingController@callback')->name('billing.callback');
+    Route::get('declined' , 'BillingController@declined')->name('billing.declined');
+
+});

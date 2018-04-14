@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Log;
 use App\Shop;
+use App\Setting;
 use App\Objects\ScriptTag;
 use Illuminate\Http\Request;
 use Oseintow\Shopify\Shopify;
 use App\Objects\ShopifyWebhook;
 use Oseintow\Shopify\Exceptions\ShopifyApiException;
+use App\ShopInfo;
 
 
 class ShopifyController extends Controller
@@ -26,79 +30,98 @@ class ShopifyController extends Controller
 
     	if($shopUrl)
     	{
-    		$shop = Shop::where('domain' , $shopUrl)->first();
+    		$shop = Shop::where('myshopify_domain' , $shopUrl)->first();
     		if($shop)
     		{
     			session([
 
-    					'shop_id' => $shop->shop_id,
-    					'domain' => $shop->domain,
-    					'access_token' => $shop->access_token
+    					'shopifyId' => $shop->shopify_id,
+    					'myshopifyDomain' => $shop->domain,
+    					'accessToken' => $shop->access_token
 
     				]);
 
-    			return view('app.index');
+    			return view('home.index' , ['shop' => $shop , 'settings' => $shop->settings]);
     		}
     		else{
     			$shopify = $this->shopify->setShopUrl($shopUrl);
-    			return redirect()->to($shopify->getAuthorizeUrl(config('shopify.scope') , env('SHOPIFY_REDIRECT_URI')));
+    			return redirect()->to($shopify->getAuthorizeUrl(config('shopify.scope') , config('shopify.redirect_uri')));
     		}
     	}
     	else{
-    		dd('You must provide a valid myshopify domain!');
+    		abort(404);
     	}
 
     }
 
     public function callback(Request $request)
     {
-    	$queryString = $request->getQueryString();
+		$queryString = $request->getQueryString();
+		
     	if($this->shopify->verifyRequest($queryString))
     	{
-    		$shopUrl = $request->shop;
 
-    		try {
+    		$shopUrl = $request->shop;
+    		try{
     			$accessToken = $this->shopify->setShopUrl($shopUrl)->getAccessToken($request->code);
 
-    			//Make your first API call and get Shop Data
     			$shopResponse = $this->shopify->setShopUrl($shopUrl)
     										  ->setAccessToken($accessToken)
     										  ->get('admin/shop.json');
   				if($shopResponse)
   				{
   					session([
+  							'shopifyId' => $shopResponse['id'],
+  							'myshopifyDomain' => $shopUrl,
+  							'accessToken' => $accessToken
+					]);
+					
+					$shop = $this->createShop($shopResponse);
+					$this->createDefaultSettings($shop);
+					$this->storeShopInfo($shopResponse, $shop->id);
 
-  							'shop_id' => $shopResponse['id'],
-  							'domain' => $shopUrl,
-  							'access_token' => $accessToken
+					ShopifyWebhook::registerAppUninstallWebhook();
 
-  						]);
-
-  					$this->createShop($shopResponse);
-
-
-  					ShopifyWebhook::registerAppUninstallWebhook();
-  					ScriptTag::register();
-
+					if(config('shopify.billing_enabled'))
+					{
+						return redirect()->route('billing.charge');
+					}
+		
+					ScriptTag::register();
+					  
   					return redirect("https://{$shopUrl}/admin/apps");
-
-
   				}
 
     		} catch (ShopifyApiException $e) {
-    			dd($e->getMessage());
+				Log::critical("Installation Callback exception." , ['message' => $e->getMessage(), 'shop' => $shopUrl]);
+				abort(500);
     		}
-    	}
+    	}else{
+			abort(500,"Hmm, Something doesn't look right.");
+		}
     }
 
-   	protected function createShop($shopResponse)
+   	protected function createShop($data)
 	{
 		return Shop::create([
-				'shop_id' => $shopResponse['id'],
-				'name' => $shopResponse['name'],
-				'domain' => $shopResponse['myshopify_domain'],
-				'access_token' => session('access_token')
+				'shopify_id' => $data['id'],
+				'domain' => $data['myshopify_domain'],
+				'access_token' => session('accessToken')
+		]);
+	}
 
-			]);
+	protected function createDefaultSettings($shop)
+    {
+        return $settings = Setting::create([
+            'enabled' => 1,
+            'shop_id' => $shop->id
+        ]);
+	}
+	
+	protected function storeShopInfo($data, $shopId)
+	{
+		unset($data['id']);
+		$data['shop_id'] = $shopId;
+		return ShopInfo::updateOrCreate($data);
 	}
 }

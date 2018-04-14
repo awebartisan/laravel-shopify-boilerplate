@@ -17,9 +17,11 @@ class CreateShopsTable extends Migration
 
             $table->increments('id');
             $table->string('name');
-            $table->bigInteger('shop_id')->unsigned()->index();
-            $table->string('domain');
+            $table->bigInteger('shopify_id')->unsigned()->index();
+            $table->string('myshopify_domain');
             $table->string('access_token');
+            $table->boolean('is_premium')->nullable();
+            $table->string('charge_status')->nullable();
             $table->timestamps();
 
         });

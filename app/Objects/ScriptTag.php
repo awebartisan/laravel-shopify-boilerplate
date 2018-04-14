@@ -3,7 +3,6 @@
 namespace App\Objects;
 
 
-
 use Oseintow\Shopify\Facades\Shopify;
 
 class ScriptTag {
@@ -13,12 +12,12 @@ class ScriptTag {
         $postData = [
 
             'event' => 'onload',
-            'src' => env('APP_URL') . '/js/storefront.js'
+            'src' => config('app.url') . '/js/storefront.js'
 
         ];
 
-        return Shopify::setShopUrl(session('domain'))
-               ->setAccessToken(session('access_token'))
+        return Shopify::setShopUrl(session('myshopifyDomain'))
+               ->setAccessToken(session('accessToken'))
                ->post('admin/script_tags.json' , [ "script_tag" => $postData]);
     }
 
